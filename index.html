@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <form name="formulario" id="formulario" action="http://www.laweb.es" method="get">
+        <label for="nombre">Nombre:</label>
+            <div>
+                <input type="text" name="nombre" id="nombre" value="Manolo" />
+                <span></span>
+            </div>
+            
+        <label for="apellidos">Apellidos:</label>
+            <div>
+                <input type="text" name="apellidos" id="apellidos" value="Pimpollo"/>
+            <span></span>
+            </div>
+
+        <label for="Email">Correo:</label>
+            <div>
+                <input name="email" type="email" id="email" value="man@hotmail.com"/>
+            <span></span>
+            </div>
+
+        <label for="Contraseña">Contraseña:</label>
+            <div>
+                <input name="password" type="password" id="password" value="12345Aa!" />
+            <span></span>
+            </div>
+
+        <label for="ConfirC">Confirmar Contraseña:</label>
+            <div>
+                <input name="passwordConf" type="password" id="passwordConf" value="12345Aa!"/>
+            <span></span>
+            </div>
+
+        <label for="edad">Edad:</label>
+            <div>
+                <input name="edad" type="number" id="edad" value="20" />
+            <span></span>
+            </div>
+            
+        <label for="matricula">Matrícula Coche:</label>
+        <div>
+            <input name="matricula" type="text" id="matricula" placeholder="XXXX AAA" value="1888 HHH"/>
+            <span></span>
+        </div>
+            
+        <label for="fechaM">Fecha matriculación:</label>
+        <div>
+            <input name="fechaM" type="date" id="fechaM"/>
+            <span></span>
+        </div>
+           
+        <label for="provincia">Provincia:</label>
+        <div>
+            <select name="provincia" id="provincia">
+                <option value="0" selected="selected">Seleccione Provincia</option>
+                <option value="H">Huesca</option>
+                <option value="ZA">Zaragoza</option>
+                <option value="T">Teruel</option>
+            </select>
+            <span></span>
+        </div>
+            
+        <label></label>
+        <input type="reset" name="limpiar" id="limpiar" value="Limpiar" />
+        <input type="submit" name="enviar" id="enviar" value="Enviar" />
+    </form>
+    <ul>
+        
+    </ul>
+    <script src="script.js"></script>
+</body>
+</html>
