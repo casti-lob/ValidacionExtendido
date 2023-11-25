@@ -10,8 +10,9 @@ const passwordConfForm = document.querySelector("#passwordConf")
 const dateForm = document.querySelector("#fechaM")
 const provinciaForm = document.querySelector("#provincia")
 const url ="http://localhost:3000/"
-const oldUl = document.querySelector("ul")
+const ul = document.querySelector("ul")
 const body = document.querySelector("body")
+let idLastUser =0
 //Creamos requisitos
 const isRequired = value => value === '' ? false : true;
 const isBetween = (length, min, max) => length < min || length > max ? false : true;
@@ -253,13 +254,27 @@ const debounce = (fn, delay = 1000) => {
   }));
 
 
-form.addEventListener('submit', (e)=>{
+form.addEventListener('submit', async (e)=>{
     e.preventDefault()
     if(checkName()&&checkSurname()&&checkEmail()&&checkPassword()&&checkPasswordConfirm()&& checkAge()&&checkMaticula()&&checkFecha()&&checkProvincia()){
-        alert("Formulado enviado")
+        const li = createLi(nameForm.value, surnameForm.value, emailForm.value, passwordForm.value, ageForm.value, matriculaForm.value, dateForm.value, provinciaForm.value)
+        console.log(form.dataset.idUser);
+        if(form.dataset.idUser){
+            const idUser = form.dataset.idUser
+            const idUserIndex= parseInt(form.dataset.idUserIndex)
+            putUser(idUser)
+            li.dataset.idUser = idUser
+            ul.replaceChild(li,ul.children[idUserIndex])
+            form.removeAttribute('data-id-user')
+            form.querySelector('#enviar').value='Enviar'
+        }else{
+            addUser(nameForm.value, surnameForm.value, emailForm.value, passwordForm.value, ageForm.value, matriculaForm.value, dateForm.value, provinciaForm.value)
+            alert("Formulado enviado")
+        
+        }
+        
 
-        addUser(nameForm.value, surnameForm.value, emailForm.value, passwordForm.value, ageForm.value, matriculaForm.value, dateForm.value, provinciaForm.value)
-        oldUl.replaceWith(buildList(getUsers()))
+        
         
         
     }
@@ -288,7 +303,7 @@ async function addUser(name,surname,email,password,edad,matricula,date,provincia
         
             if(response.ok){
                 const post = await response.json()
-                return post
+                addLiUl(post.name,post.suraname,post.email,post.password,post.edad,post.matricula,post.date,post.provincia, idLastUser+1)
         
         }
         } catch (error) {
@@ -310,6 +325,14 @@ async function getUsers(){
         
             if(response.ok){
                 const post = await response.json()
+                post.forEach(user => {
+                    addLiUl(user.name,user.suraname,user.email,user.password,user.edad,user.matricula,user.date,user.provincia, user.id)
+                    if(user.id> idLastUser){
+                        idLastUser= user.id
+
+                    }
+                });
+               
                 return post
         
         }
@@ -317,27 +340,131 @@ async function getUsers(){
             console.error(error);
         }  
 }
-async function buildList(getUsers){
-    
-    
-    
-    const allUser= await getUsers
-    console.log(allUser);
 
-    allUser.forEach( async element => {
-        const user = await element
-        const li= document.createElement("li")
-        const button = document.createElement("button")
-        button.setAttribute("id",  user.id)
-        textButton = document.createTextNode("editar")
-        button.appendChild(textButton)
-        textli = document.createTextNode(  user.name)
-        li.appendChild(textli)
-        li.appendChild(button)
-        oldUl.appendChild(li)
-        
-    });
-    
+//añadir la li a ul
+function addLiUl(name, surname, email, password, age, matricula, date, provincia,id){
+    const li = createLi(name, surname, email, password, age, matricula, date, provincia,id)
+    ul.appendChild(li)
+}
+
+//evento para boton de borrar y editar
+ul.addEventListener('click',(e)=>{
+    if(e.target.classList.contains('edit')){
+        updateLi(e)
+    }else if (e.target.classList.contains('delete')){
+        deleteUser(e)
+    }
+})
+//Crear la li
+function createLi(name, surname, email, password, age, matricula, date, provincia,id){
+    const li = document.createElement('li')
+    const infoLi = document.createTextNode(`${name} : ${surname} : ${email} : ${password} : ${age} : ${matricula} : ${date} : ${provincia} : `)
+    const buttonEdit = document.createElement('button')
+    const buttonDelete = document.createElement('button')
+
+    buttonEdit.classList.add('edit')
+    buttonEdit.textContent = 'Editar';
+
+    buttonDelete.classList.add('delete');
+    buttonDelete.textContent = 'Borrar';
+
+    li.appendChild(infoLi);
+    li.appendChild(buttonDelete);
+    li.appendChild(buttonEdit);
+    li.dataset.idUser = id
+    return li
 
 }
-buildList(getUsers())
+
+//Funcion actualizar
+function updateLi(e){
+    //cogemos el elemento padre del boton li
+    const li = e.target.parentElement
+    const idUser = li.dataset.idUser
+
+    //lo guardamos en un array
+    const arrayLi = li.textContent.split(' : ')
+    const name= arrayLi[0]
+    const suraname= arrayLi[1]
+    const email=arrayLi[2]
+    const password=arrayLi[3]
+    const edad=arrayLi[4]
+    const matricula=arrayLi[5]
+    const date=arrayLi[6]
+    const provincia=arrayLi[7]
+    
+    // cargamos los valores en el formulario
+
+    form.elements.nombre.value = name;
+    form.elements.apellidos.value = suraname;
+    form.elements.email.value = email;
+    form.elements.password.value = password;
+    form.elements.passwordConf.value = password;
+    form.elements.edad.value = edad;
+    form.elements.matricula.value = matricula;
+    form.elements.fechaM.value = date;
+    console.log(arrayLi);
+    form.elements.provincia.value = provincia;
+
+    // guardamos datos de id y posición en el formulario
+    form.dataset.idUser= idUser
+    form.dataset.idUserIndex = [...ul.children].indexOf(li)
+    // cambiamos el nombre del boton
+    form.querySelector('#enviar').value = 'Editar Usuario';
+}
+
+async function putUser(id){
+    const user={
+      "name":nameForm.value,
+      "suraname":surnameForm.value,
+      "email":emailForm.value,
+      "password":passwordForm.value,
+      "edad":ageForm.value,
+      "matricula":matriculaForm.value,
+      "date":dateForm.value,
+      "provincia":provinciaForm.value
+    }
+    try {
+        const response = await fetch(`${url}users/${id}`,{
+        method: 'PUT',
+        body: JSON.stringify(user),
+        headers:{
+            'Content-Type': 'application/json'
+        }
+       
+        })
+        
+            if(response.ok){
+                const post = await response.json()
+                console.log(post);
+        
+        }
+        } catch (error) {
+            console.error(error);
+        }  
+}
+
+//borrar
+function deleteUser(e){
+    const li = e.target.parentElement;
+    // cogemos el id 
+    const idUser = li.dataset.idUser;
+
+    fetch(`${url}users/${idUser}`,{
+        method: 'DELETE',
+        headers:{
+            'Content-Type': 'application/json'
+        }
+    })
+    .then((response)=> {
+        li.remove()
+        return response.json()
+    })
+    .then((data)=> {
+       console.log(data);
+        
+    })
+    .catch(error => console.log('Error: ', error))
+        
+}
+getUsers()
